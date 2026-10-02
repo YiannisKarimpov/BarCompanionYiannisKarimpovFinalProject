@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{% if drink %}{{ drink.name }}{% else %}Recipe{% endif %} · Bar Companion{% endblock %}
+{% block content %}
+<p><a href="{% url 'recipes:browse' %}">&larr; Back to recipes</a></p>
+
+{% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }} Please try again in a moment.</div>
+{% else %}
+<div class="row g-4">
+  <div class="col-md-5">
+    {% if drink.thumb %}<img src="{{ drink.thumb }}" class="img-fluid rounded" alt="{{ drink.name }}">{% endif %}
+  </div>
+  <div class="col-md-7">
+    <h1 class="h2">{{ drink.name }}</h1>
+    <p class="mb-3">
+      {% if drink.category %}<span class="badge text-bg-secondary">{{ drink.category }}</span>{% endif %}
+      {% if drink.alcoholic %}<span class="badge text-bg-secondary">{{ drink.alcoholic }}</span>{% endif %}
+      {% if drink.glass %}<span class="badge text-bg-secondary">{{ drink.glass }}</span>{% endif %}
+    </p>
+
+    <h2 class="h5">Ingredients</h2>
+    <ul class="list-unstyled">
+      {% for ingredient in drink.ingredients %}
+        <li class="mb-1">
+          {% if ingredient.measure %}{{ ingredient.measure }} {% endif %}{{ ingredient.name }}
+          {% if user.is_authenticated %}
+            {% if ingredient.in_stock %}<span class="badge text-bg-success">In your bar</span>{% else %}<span class="badge text-bg-dark border">Not in stock</span>{% endif %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    {% if not user.is_authenticated %}
+      <p class="small text-muted-site"><a href="{% url 'accounts:login' %}">Log in</a> to see which ingredients you already have.</p>
+    {% endif %}
+
+    <h2 class="h5 mt-4">Method</h2>
+    <p>{{ drink.instructions }}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

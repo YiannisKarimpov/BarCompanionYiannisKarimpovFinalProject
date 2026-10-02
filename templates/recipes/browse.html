@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Browse recipes · Bar Companion{% endblock %}
+{% block content %}
+<h1 class="h2 mb-3">Browse recipes</h1>
+
+<form method="get" class="row g-2 mb-4" role="search">
+  <div class="col-sm-9 col-md-10">
+    <label class="visually-hidden" for="q">Cocktail name</label>
+    <input type="search" id="q" name="q" value="{{ query }}" class="form-control" placeholder="Search by cocktail name, e.g. Negroni">
+  </div>
+  <div class="col-sm-3 col-md-2 d-grid">
+    <button type="submit" class="btn btn-gold">Search</button>
+  </div>
+</form>
+
+{% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }} Please try again in a moment.</div>
+{% elif query and not results %}
+  <p class="text-muted-site">No cocktails found for "{{ query }}". Try a different name.</p>
+{% elif not query %}
+  <p class="text-muted-site mb-2">Search for a cocktail by name, or try one of these:</p>
+  <div class="d-flex flex-wrap gap-2">
+    {% for name in suggestions %}
+      <a class="btn btn-outline-gold btn-sm" href="{% url 'recipes:browse' %}?q={{ name|urlencode }}">{{ name }}</a>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if results %}
+  <p class="text-muted-site">{{ results|length }} result{{ results|length|pluralize }} for "{{ query }}"</p>
+  <div class="row g-3">
+    {% for drink in results %}
+    <div class="col-6 col-md-4 col-lg-3">
+      <a class="text-decoration-none" href="{% url 'recipes:detail' drink.id %}">
+        <div class="card h-100 site-card">
+          {% if drink.thumb %}<img src="{{ drink.thumb }}" class="card-img-top recipe-thumb" alt="{{ drink.name }}" loading="lazy">{% endif %}
+          <div class="card-body">
+            <h2 class="h6 mb-1">{{ drink.name }}</h2>
+            <p class="small text-muted-site mb-0">{{ drink.category }}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

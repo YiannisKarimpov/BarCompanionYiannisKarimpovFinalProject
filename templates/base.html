@@ -16,6 +16,7 @@
       </button>
       <div class="collapse navbar-collapse" id="nav">
         <ul class="navbar-nav ms-auto align-items-md-center gap-md-2">
+          <li class="nav-item"><a class="nav-link" href="{% url 'recipes:browse' %}">Recipes</a></li>
           {% if user.is_authenticated %}
             <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}">Dashboard</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'bar:list' %}">My bar</a></li>
