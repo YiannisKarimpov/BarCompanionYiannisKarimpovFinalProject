@@ -6,13 +6,13 @@ Users can register and log in, then (as features are added week by week) browse 
 
 ## Status
 
-Week 2 skeleton: project structure, custom email-based user model, registration, login, logout, landing page, protected dashboard, automated tests, and deployment configuration.
+Week 2 skeleton plus My bar stock management and recipe browsing from TheCocktailDB.
 
 ## Tech stack
 
 - Django 5.2 (Python), Django templates, Bootstrap 5
 - PostgreSQL (SQLite fallback for quick local runs and tests)
-- TheCocktailDB external API (planned, week 4)
+- TheCocktailDB external API (recipe search and details)
 - Gunicorn + WhiteNoise, deployed on Render
 
 ## Project layout
