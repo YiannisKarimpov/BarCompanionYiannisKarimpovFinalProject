@@ -26,6 +26,10 @@ a:hover { color: #e2c58f; }
 .btn-outline-gold { color: var(--bc-gold); border-color: var(--bc-gold); }
 .btn-outline-gold:hover { background: var(--bc-gold); color: #14121a; }
 
+.site-table { --bs-table-bg: var(--bc-card); --bs-table-border-color: var(--bc-border); }
+.form-select { background-color: #14121a; color: var(--bc-text); border-color: var(--bc-border); }
+.form-select:focus { border-color: var(--bc-gold); box-shadow: 0 0 0 0.2rem rgba(201, 169, 110, 0.25); }
+
 .form-control { background: #14121a; color: var(--bc-text); border-color: var(--bc-border); }
 .form-control:focus { background: #14121a; color: var(--bc-text); border-color: var(--bc-gold); box-shadow: 0 0 0 0.2rem rgba(201, 169, 110, 0.25); }
 .helptext, .form-text { color: var(--bc-muted); }

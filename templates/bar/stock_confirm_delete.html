@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Remove ingredient · Bar Companion{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card site-card"><div class="card-body p-4">
+      <h1 class="h3 mb-3">Remove from your bar?</h1>
+      <p>This will remove <strong>{{ object.ingredient.name }}</strong> ({{ object.quantity|floatformat:"-2" }} {{ object.get_unit_display }}) from your stock.</p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-danger">Remove</button>
+          <a class="btn btn-outline-gold" href="{% url 'bar:list' %}">Cancel</a>
+        </div>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

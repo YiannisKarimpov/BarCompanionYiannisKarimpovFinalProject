@@ -10,6 +10,7 @@ from pathlib import Path
 
 import dj_database_url
 from decouple import Csv, config
+from django.contrib import messages
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "accounts",
     "core",
+    "bar",
 ]
 
 MIDDLEWARE = [
@@ -116,6 +118,9 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Map Django message levels onto Bootstrap alert classes.
+MESSAGE_TAGS = {messages.ERROR: "danger"}
 
 # --- Production security (only when DEBUG is off) ----------------------
 if not DEBUG:

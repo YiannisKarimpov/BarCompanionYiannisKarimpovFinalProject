@@ -11,4 +11,5 @@ def home(request):
 @login_required
 def dashboard(request):
     """Personal dashboard shown after login (features are added week by week)."""
-    return render(request, "core/dashboard.html")
+    context = {"stock_count": request.user.stock_items.count()}
+    return render(request, "core/dashboard.html", context)
