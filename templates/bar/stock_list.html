@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}My bar · Bar Companion{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h1 class="h2 mb-0">My bar</h1>
+  <a class="btn btn-gold" href="{% url 'bar:add' %}">Add ingredient</a>
+</div>
+
+{% if items %}
+  <div class="table-responsive">
+    <table class="table table-dark table-hover align-middle site-table">
+      <thead>
+        <tr><th>Ingredient</th><th>Quantity</th><th>Unit</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.ingredient.name }}</td>
+          <td>{{ item.quantity|floatformat:"-2" }}</td>
+          <td>{{ item.get_unit_display }}</td>
+          <td class="text-end">
+            <a class="btn btn-outline-gold btn-sm" href="{% url 'bar:edit' item.pk %}">Edit</a>
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'bar:delete' item.pk %}">Remove</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="card site-card"><div class="card-body text-center py-5">
+    <p class="mb-3 text-muted-site">Your bar is empty. Add the bottles and mixers you hold to get started.</p>
+    <a class="btn btn-gold" href="{% url 'bar:add' %}">Add your first ingredient</a>
+  </div></div>
+{% endif %}
+{% endblock %}

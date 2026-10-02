@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} ingredient · Bar Companion{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card site-card"><div class="card-body p-4">
+      <h1 class="h3 mb-3">{% if object %}Edit ingredient{% else %}Add ingredient{% endif %}</h1>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-gold">Save</button>
+          <a class="btn btn-outline-gold" href="{% url 'bar:list' %}">Cancel</a>
+        </div>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
