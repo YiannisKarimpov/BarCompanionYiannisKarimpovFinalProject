@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Bar Companion{% endblock %}
+{% block content %}
+<h1 class="h2 mb-1">Welcome back, {{ user.first_name }}</h1>
+<p class="text-muted-site mb-4">Your bar at a glance. More sections arrive as the project grows.</p>
+
+<div class="row g-3">
+  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+    <h2 class="h5">My bar</h2><p class="mb-0 text-muted-site">Stock tracking is coming in week 4.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+    <h2 class="h5">Favourites</h2><p class="mb-0 text-muted-site">Saved recipes will appear here.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+    <h2 class="h5">Can I make it?</h2><p class="mb-0 text-muted-site">Recipe matching is coming in week 5.</p>
+  </div></div></div>
+</div>
+{% endblock %}

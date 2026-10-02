@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Bar Companion{% endblock %}
+{% block content %}
+<section class="hero text-center py-5">
+  <h1 class="display-4">Know exactly what you can pour tonight</h1>
+  <p class="lead mx-auto hero-lead">Browse real cocktail recipes, track your bar's stock, and build costed menus, all in one place.</p>
+  {% if user.is_authenticated %}
+    <a class="btn btn-gold btn-lg" href="{% url 'core:dashboard' %}">Go to your dashboard</a>
+  {% else %}
+    <a class="btn btn-gold btn-lg me-2" href="{% url 'accounts:register' %}">Create a free account</a>
+    <a class="btn btn-outline-gold btn-lg" href="{% url 'accounts:login' %}">Log in</a>
+  {% endif %}
+</section>
+
+<section class="row g-3 pb-4">
+  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+    <h2 class="h5">My bar</h2><p class="mb-0">Keep a live list of the bottles and mixers you hold.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+    <h2 class="h5">Can I make it?</h2><p class="mb-0">See which cocktails your current stock can make right now.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+    <h2 class="h5">Menu builder</h2><p class="mb-0">Cost your drinks and see the margin on every serve.</p>
+  </div></div></div>
+</section>
+{% endblock %}

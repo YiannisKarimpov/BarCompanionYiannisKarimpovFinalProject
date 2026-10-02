@@ -1,0 +1,31 @@
+/* Bar Companion site theme: dark charcoal with gold accents (Noir Studio look). */
+:root {
+  --bc-bg: #14121a;
+  --bc-card: #1f1c26;
+  --bc-border: #342f3c;
+  --bc-text: #f1eadc;
+  --bc-muted: #a49e92;
+  --bc-gold: #c9a96e;
+  --bc-gold-dark: #b08d52;
+}
+
+body { background: var(--bc-bg); color: var(--bc-text); }
+a { color: var(--bc-gold); }
+a:hover { color: #e2c58f; }
+
+.site-nav { background: #0e0c13; border-bottom: 1px solid var(--bc-border); }
+.site-nav .navbar-brand { color: var(--bc-gold); font-weight: 600; letter-spacing: 0.04em; }
+.site-footer { border-top: 1px solid var(--bc-border); color: var(--bc-muted); }
+
+.site-card { background: var(--bc-card); border: 1px solid var(--bc-border); color: var(--bc-text); }
+.text-muted-site { color: var(--bc-muted); }
+.hero-lead { max-width: 40rem; color: var(--bc-muted); margin-bottom: 1.5rem; }
+
+.btn-gold { background: var(--bc-gold); color: #14121a; border-color: var(--bc-gold); font-weight: 500; }
+.btn-gold:hover { background: var(--bc-gold-dark); border-color: var(--bc-gold-dark); color: #14121a; }
+.btn-outline-gold { color: var(--bc-gold); border-color: var(--bc-gold); }
+.btn-outline-gold:hover { background: var(--bc-gold); color: #14121a; }
+
+.form-control { background: #14121a; color: var(--bc-text); border-color: var(--bc-border); }
+.form-control:focus { background: #14121a; color: var(--bc-text); border-color: var(--bc-gold); box-shadow: 0 0 0 0.2rem rgba(201, 169, 110, 0.25); }
+.helptext, .form-text { color: var(--bc-muted); }
