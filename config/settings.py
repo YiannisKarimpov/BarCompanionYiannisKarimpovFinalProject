@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "accounts",
     "core",
     "bar",
+    "recipes",
 ]
 
 MIDDLEWARE = [
@@ -118,6 +119,12 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- TheCocktailDB external API ----------------------------------------
+# "1" is the free test key, fine for development. Check the API's terms and
+# use a production key before a public release.
+COCKTAILDB_API_KEY = config("COCKTAILDB_API_KEY", default="1")
+COCKTAILDB_BASE_URL = config("COCKTAILDB_BASE_URL", default="https://www.thecocktaildb.com/api/json/v1")
 
 # Map Django message levels onto Bootstrap alert classes.
 MESSAGE_TAGS = {messages.ERROR: "danger"}
