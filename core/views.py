@@ -1,0 +1,14 @@
+"""Views for the public landing page and the logged-in dashboard."""
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+
+def home(request):
+    """Public landing page describing Bar Companion."""
+    return render(request, "core/home.html")
+
+
+@login_required
+def dashboard(request):
+    """Personal dashboard shown after login (features are added week by week)."""
+    return render(request, "core/dashboard.html")
