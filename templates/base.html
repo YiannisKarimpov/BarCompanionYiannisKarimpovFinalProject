@@ -20,6 +20,7 @@
           {% if user.is_authenticated %}
             <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}">Dashboard</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'bar:list' %}">My bar</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'recipes:matcher' %}">Can I make it?</a></li>
             <li class="nav-item"><span class="nav-link disabled">{{ user.first_name }}</span></li>
             <li class="nav-item">
               <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">

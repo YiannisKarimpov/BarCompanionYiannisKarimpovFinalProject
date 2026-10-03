@@ -24,7 +24,7 @@
         <li class="mb-1">
           {% if ingredient.measure %}{{ ingredient.measure }} {% endif %}{{ ingredient.name }}
           {% if user.is_authenticated %}
-            {% if ingredient.in_stock %}<span class="badge text-bg-success">In your bar</span>{% else %}<span class="badge text-bg-dark border">Not in stock</span>{% endif %}
+            {% if ingredient.staple %}<span class="badge text-bg-dark border">Assumed on hand</span>{% elif ingredient.in_stock %}<span class="badge text-bg-success">In your bar</span>{% else %}<span class="badge text-bg-dark border">Not in stock</span>{% endif %}
           {% endif %}
         </li>
       {% endfor %}

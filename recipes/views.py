@@ -1,10 +1,11 @@
-"""Views for browsing cocktail recipes from TheCocktailDB (public pages)."""
+"""Views for browsing cocktail recipes from TheCocktailDB and matching them to stock."""
+from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 
 from bar.models import BarStock
 
-from . import services
+from . import matching, services
 
 SUGGESTED_SEARCHES = ["Margarita", "Mojito", "Negroni", "Old Fashioned", "Daiquiri", "Martini"]
 
@@ -32,10 +33,36 @@ def detail(request, drink_id):
         raise Http404("Cocktail not found")
 
     if request.user.is_authenticated:
-        in_stock = {
-            name.lower()
-            for name in BarStock.objects.filter(user=request.user).values_list("ingredient__name", flat=True)
-        }
+        stock_names = list(
+            BarStock.objects.filter(user=request.user).values_list("ingredient__name", flat=True)
+        )
         for ingredient in drink["ingredients"]:
-            ingredient["in_stock"] = ingredient["name"].lower() in in_stock
+            ingredient["staple"] = matching.is_staple(ingredient["name"])
+            ingredient["in_stock"] = any(matching.names_match(stock, ingredient["name"]) for stock in stock_names)
     return render(request, "recipes/detail.html", {"drink": drink})
+
+
+@login_required
+def can_i_make_it(request):
+    """Show the cocktails the user can make now and those one ingredient short."""
+    stock_names = list(
+        BarStock.objects.filter(user=request.user)
+        .order_by("-updated_at")
+        .values_list("ingredient__name", flat=True)
+    )
+    context = {
+        "has_stock": bool(stock_names),
+        "stock_names": sorted(set(stock_names), key=str.lower),
+        "ready": [],
+        "almost": [],
+        "close": [],
+        "checked": 0,
+        "incomplete": False,
+        "error": None,
+    }
+    if stock_names:
+        try:
+            context.update(matching.find_matches(stock_names))
+        except services.CocktailAPIError as exc:
+            context["error"] = str(exc)
+    return render(request, "recipes/matcher.html", context)

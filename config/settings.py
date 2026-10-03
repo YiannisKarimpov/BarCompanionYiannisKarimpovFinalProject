@@ -120,6 +120,22 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# --- Cache ---------------------------------------------------------------
+# API responses (and the assembled cocktail catalogue) are cached in the
+# database so they survive restarts and are shared by every worker. Create the
+# table once with ``python manage.py createcachetable``. Tests use memory.
+CACHES = {
+    "default": (
+        {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+        if RUNNING_TESTS
+        else {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "django_cache",
+            "OPTIONS": {"MAX_ENTRIES": 5000},
+        }
+    )
+}
+
 # --- TheCocktailDB external API ----------------------------------------
 # "1" is the free test key, fine for development. Check the API's terms and
 # use a production key before a public release.

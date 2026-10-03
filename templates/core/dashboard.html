@@ -14,7 +14,9 @@
     <h2 class="h5">Favourites</h2><p class="mb-0 text-muted-site">Saved recipes will appear here.</p>
   </div></div></div>
   <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
-    <h2 class="h5">Can I make it?</h2><p class="mb-0 text-muted-site">Recipe matching is coming in week 5.</p>
+    <h2 class="h5">Can I make it?</h2>
+    <p class="text-muted-site">See which cocktails your stock can make right now.</p>
+    <a class="btn btn-outline-gold btn-sm" href="{% url 'recipes:matcher' %}">Check my bar</a>
   </div></div></div>
 </div>
 {% endblock %}
