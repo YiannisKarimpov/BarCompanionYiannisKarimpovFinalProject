@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "core",
     "bar",
     "recipes",
+    "menus",
 ]
 
 MIDDLEWARE = [

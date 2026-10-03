@@ -6,7 +6,7 @@ Users can register and log in, then (as features are added week by week) browse 
 
 ## Status
 
-Week 2 skeleton, My bar stock management, recipe browsing from TheCocktailDB, the "Can I make it?" matcher, and favourites.
+Week 2 skeleton, My bar stock management, recipe browsing from TheCocktailDB, the "Can I make it?" matcher, favourites, and the menu builder.
 
 ## How "Can I make it?" works
 
@@ -15,6 +15,10 @@ The free TheCocktailDB key cannot search by ingredient (it returns a single samp
 ## Favourites
 
 Logged-in users can press Save on any recipe to add it to their favourites (press again to remove it). A favourite stores only the TheCocktailDB drink id, name and picture (`recipes.models.Favourite`, unique per user and drink), so the Favourites page and the dashboard card load without calling the API. Saving is a POST request protected by CSRF and requires login.
+
+## Menu builder
+
+Bartenders can create named menus (`/menus/`), add any recipe to one with "Add to menu" on the recipe page, then set each drink's cost and selling price. The menu page shows the margin in euros and as a percentage of the price for every drink, plus the menu's average margin (drinks without a price are left out of the average and flagged). A menu item stores the TheCocktailDB drink id with its name and picture, so menu pages need no API calls. Menus are private: every view filters by the logged-in user, so another user's menu returns 404.
 
 ## Tech stack
 
@@ -29,6 +33,9 @@ Logged-in users can press Save on any recipe to add it to their favourites (pres
 config/       project settings, root URLs, WSGI
 accounts/     custom User model (email login, role), register/login/logout
 core/         landing page and dashboard
+bar/          ingredient stock (My bar)
+recipes/      TheCocktailDB client, matcher, favourites
+menus/        menu builder: costs, prices and margins
 templates/    base.html and per-app templates
 static/       site CSS
 ```

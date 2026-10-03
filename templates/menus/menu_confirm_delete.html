@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Delete menu · Bar Companion{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6 col-lg-5">
+  <div class="card site-card"><div class="card-body p-4">
+    <h1 class="h3 mb-3">Delete menu?</h1>
+    <p>"{{ object.name }}" and its {{ object.items.count }} drink{{ object.items.count|pluralize }} will be removed. This cannot be undone.</p>
+    <form method="post">{% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete</button>
+      <a class="btn btn-outline-gold" href="{% url 'menus:detail' object.pk %}">Cancel</a>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

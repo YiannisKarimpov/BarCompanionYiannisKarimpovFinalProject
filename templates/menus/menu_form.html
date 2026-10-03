@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}New menu · Bar Companion{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6 col-lg-5">
+  <div class="card site-card"><div class="card-body p-4">
+    <h1 class="h3 mb-3">New menu</h1>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ form.name.id_for_label }}">Menu name</label>
+        {{ form.name }}
+        {% for error in form.name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-gold">Create</button>
+        <a class="btn btn-outline-gold" href="{% url 'menus:list' %}">Cancel</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

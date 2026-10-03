@@ -14,6 +14,7 @@ def dashboard(request):
     context = {
         "stock_count": request.user.stock_items.count(),
         "favourites": request.user.favourites.all()[:5],
+        "menu_count": request.user.menus.count(),
         "favourite_count": request.user.favourites.count(),
     }
     return render(request, "core/dashboard.html", context)
