@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Favourites · Bar Companion{% endblock %}
+{% block content %}
+<h1 class="h2 mb-3">Favourites</h1>
+
+{% if not favourites %}
+  <p class="text-muted-site">You have not saved any recipes yet. Open a recipe and press Save.</p>
+  <a class="btn btn-gold" href="{% url 'recipes:browse' %}">Browse recipes</a>
+{% else %}
+  <div class="row g-3">
+    {% for fav in favourites %}
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="card h-100 site-card">
+        <a class="text-decoration-none" href="{% url 'recipes:detail' fav.drink_id %}">
+          {% if fav.thumb %}<img src="{{ fav.thumb }}" class="card-img-top recipe-thumb" alt="{{ fav.name }}" loading="lazy">{% endif %}
+          <div class="card-body pb-2"><h2 class="h6 mb-0">{{ fav.name }}</h2></div>
+        </a>
+        <div class="card-body pt-0">
+          <form method="post" action="{% url 'recipes:toggle_favourite' fav.drink_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'recipes:favourites' %}">
+            <button type="submit" class="btn btn-outline-gold btn-sm">Remove</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
