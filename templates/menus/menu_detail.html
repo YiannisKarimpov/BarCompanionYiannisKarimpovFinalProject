@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ menu.name }} · Bar Companion{% endblock %}
+{% block content %}
+<p><a href="{% url 'menus:list' %}">&larr; All menus</a></p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h2 mb-0">{{ menu.name }}</h1>
+  <a class="btn btn-outline-danger btn-sm" href="{% url 'menus:delete' menu.pk %}">Delete menu</a>
+</div>
+
+{% if items %}
+  <div class="table-responsive">
+    <table class="table table-dark align-middle">
+      <thead><tr><th>Drink</th><th class="text-end">Cost</th><th class="text-end">Price</th><th class="text-end">Margin</th><th class="text-end">Margin %</th><th></th></tr></thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td><a href="{% url 'recipes:detail' item.drink_id %}">{{ item.name }}</a></td>
+          <td class="text-end">&euro;{{ item.cost }}</td>
+          <td class="text-end">&euro;{{ item.price }}</td>
+          <td class="text-end">&euro;{{ item.margin }}</td>
+          <td class="text-end">{% if item.margin_percent is not None %}{{ item.margin_percent }}%{% else %}&ndash;{% endif %}</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-outline-gold btn-sm" href="{% url 'menus:edit_item' item.pk %}">Set prices</a>
+            <form method="post" action="{% url 'menus:remove_item' item.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-outline-danger btn-sm" type="submit">Remove</button></form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="text-muted-site">
+    {{ items|length }} drink{{ items|length|pluralize }}.
+    {% if average_margin is not None %}Average margin: <strong>{{ average_margin }}%</strong>.{% endif %}
+    {% if unpriced %}{{ unpriced }} drink{{ unpriced|pluralize }} still need{{ unpriced|pluralize:"s," }} a price.{% endif %}
+  </p>
+{% else %}
+  <p class="text-muted-site">This menu is empty. Open a recipe and use "Add to menu".</p>
+  <a class="btn btn-gold" href="{% url 'recipes:browse' %}">Browse recipes</a>
+{% endif %}
+{% endblock %}

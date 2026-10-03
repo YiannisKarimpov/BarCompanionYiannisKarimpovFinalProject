@@ -5,12 +5,12 @@
 <p class="text-muted-site mb-4">Your bar at a glance. </p>
 
 <div class="row g-3">
-  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+  <div class="col-md-6 col-lg-3"><div class="card h-100 site-card"><div class="card-body">
     <h2 class="h5">My bar</h2>
     <p class="text-muted-site">{% if stock_count %}{{ stock_count }} item{{ stock_count|pluralize }} in stock.{% else %}Nothing in stock yet.{% endif %}</p>
     <a class="btn btn-outline-gold btn-sm" href="{% url 'bar:list' %}">Manage stock</a>
   </div></div></div>
-  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+  <div class="col-md-6 col-lg-3"><div class="card h-100 site-card"><div class="card-body">
     <h2 class="h5">Favourites</h2>
     {% if favourites %}
       <ul class="list-unstyled mb-2">
@@ -22,10 +22,15 @@
       <a class="btn btn-outline-gold btn-sm" href="{% url 'recipes:browse' %}">Find recipes</a>
     {% endif %}
   </div></div></div>
-  <div class="col-md-4"><div class="card h-100 site-card"><div class="card-body">
+  <div class="col-md-6 col-lg-3"><div class="card h-100 site-card"><div class="card-body">
     <h2 class="h5">Can I make it?</h2>
     <p class="text-muted-site">See which cocktails your stock can make right now.</p>
     <a class="btn btn-outline-gold btn-sm" href="{% url 'recipes:matcher' %}">Check my bar</a>
+  </div></div></div>
+  <div class="col-md-6 col-lg-3"><div class="card h-100 site-card"><div class="card-body">
+    <h2 class="h5">Menus</h2>
+    <p class="text-muted-site">{% if menu_count %}{{ menu_count }} menu{{ menu_count|pluralize }}.{% else %}Cost and price your drinks.{% endif %}</p>
+    <a class="btn btn-outline-gold btn-sm" href="{% url 'menus:list' %}">{% if menu_count %}Open menus{% else %}Build a menu{% endif %}</a>
   </div></div></div>
 </div>
 {% endblock %}

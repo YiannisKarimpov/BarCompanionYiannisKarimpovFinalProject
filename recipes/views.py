@@ -43,9 +43,10 @@ def detail(request, drink_id):
             ingredient["staple"] = matching.is_staple(ingredient["name"])
             ingredient["in_stock"] = any(matching.names_match(stock, ingredient["name"]) for stock in stock_names)
         is_favourite = Favourite.objects.filter(user=request.user, drink_id=drink["id"]).exists()
+        menus = list(request.user.menus.all())
     else:
-        is_favourite = False
-    return render(request, "recipes/detail.html", {"drink": drink, "is_favourite": is_favourite})
+        is_favourite, menus = False, []
+    return render(request, "recipes/detail.html", {"drink": drink, "is_favourite": is_favourite, "menus": menus})
 
 
 @login_required

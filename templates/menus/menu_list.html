@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My menus · Bar Companion{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h2 mb-0">My menus</h1>
+  <a class="btn btn-gold" href="{% url 'menus:create' %}">New menu</a>
+</div>
+{% if menus %}
+  <div class="row g-3">
+    {% for menu in menus %}
+    <div class="col-md-6 col-lg-4"><div class="card h-100 site-card"><div class="card-body">
+      <h2 class="h5"><a href="{% url 'menus:detail' menu.pk %}">{{ menu.name }}</a></h2>
+      <p class="text-muted-site mb-0">{{ menu.items.count }} drink{{ menu.items.count|pluralize }}</p>
+    </div></div></div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-muted-site">You have no menus yet. Create one, then add drinks from any recipe page.</p>
+{% endif %}
+{% endblock %}

@@ -41,6 +41,19 @@
       <p class="small text-muted-site"><a href="{% url 'accounts:login' %}">Log in</a> to save favourites and see which ingredients you already have.</p>
     {% endif %}
 
+    {% if user.is_authenticated %}
+      {% if menus %}
+      <form method="post" action="{% url 'menus:add_item' drink.id %}" class="row g-2 align-items-center mb-2">
+        {% csrf_token %}
+        <div class="col-auto"><label class="visually-hidden" for="menu">Menu</label>
+          <select name="menu" id="menu" class="form-select form-select-sm">{% for menu in menus %}<option value="{{ menu.pk }}">{{ menu.name }}</option>{% endfor %}</select></div>
+        <div class="col-auto"><button type="submit" class="btn btn-outline-gold btn-sm">Add to menu</button></div>
+      </form>
+      {% else %}
+      <p class="small text-muted-site"><a href="{% url 'menus:create' %}">Create a menu</a> to add this drink to it.</p>
+      {% endif %}
+    {% endif %}
+
     <h2 class="h5 mt-4">Method</h2>
     <p>{{ drink.instructions }}</p>
   </div>
