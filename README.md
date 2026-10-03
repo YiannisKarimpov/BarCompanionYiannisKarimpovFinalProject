@@ -26,6 +26,17 @@ Bartenders can create named menus (`/menus/`), add any recipe to one with "Add t
 
 Users with the admin role (and superusers) get an Admin link in the navbar leading to `/manage/`: site totals, a user table showing each person's stock, menus and favourites, role changes, and deactivate/reactivate for accounts (a deactivated user cannot log in). Admins cannot change their own role or deactivate themselves, so the site can never be left without an admin. A second page lists the shared ingredient names and deletes unused ones. Anonymous visitors are sent to log in; logged-in bartenders get a 403 page. Django's own `/admin/` stays available for low-level data editing.
 
+## Bonus features
+
+Beyond the required register/login, dashboard and API integration:
+
+- Recipe search by name, with suggested searches
+- "Can I make it?" matcher: cocktails ready now, or one or two ingredients short
+- Favourites (save and remove recipes, shown on the dashboard)
+- Menu builder with cost, price, margin and average margin
+- Admin-only management pages for users, roles and ingredient names
+- Caching and retries around the external API, with a pre-load step on deploy
+
 ## Tech stack
 
 - Django 5.2 (Python), Django templates, Bootstrap 5
@@ -77,7 +88,7 @@ docs/         WALKTHROUGH.md: tour of the code and demo script
 python manage.py test
 ```
 
-The suite (about 135 tests) uses Django's `TestCase` with a temporary database. No test touches the network: calls to TheCocktailDB are replaced with mocks. Covered areas: the API client (parsing, caching, retries, errors), ingredient matching, the catalogue builder, stock, favourites, menus and margin maths, and access control on every private page (anonymous, bartender and admin users). Line coverage measured with `coverage` is about 97%.
+Tests are written with Python's built-in `unittest` framework through Django's `TestCase` classes and test runner (`python manage.py test`), using a temporary database. There are about 135 of them. No test touches the network: calls to TheCocktailDB are replaced with mocks. Covered areas: the API client (parsing, caching, retries, errors), ingredient matching, the catalogue builder, stock, favourites, menus and margin maths, and access control on every private page (anonymous, bartender and admin users). Line coverage measured with `coverage` is about 97%.
 
 ## Deploy to Render
 
