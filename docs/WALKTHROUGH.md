@@ -36,7 +36,7 @@ Browser -> Render/gunicorn -> `config/urls.py` picks an app -> the app's `urls.p
 - `matching.py`: the "Can I make it?" engine. The free API key cannot search by ingredient, so it builds its own catalogue (by-letter lists topped up with category and glass lists), caches it for a week, and compares whole words ("rum" matches "Light rum", not "Ginger ale"). Ice and water are assumed on hand.
 - `management/commands/warm_catalogue.py`: pre-loads the catalogue during deploy so users do not wait a minute.
 - `models.py`: `Favourite` (drink id, name, thumbnail, unique per user and drink).
-- `views.py`: browse/search, recipe detail (with "in your bar" badges, Save and Add to menu), matcher, favourites list and toggle.
+- `views.py`: browse (search by name, A-Z letters, category filter; the default view lists the A cocktails so the page is never empty), recipe detail (with "in your bar" badges, Save and Add to menu), matcher, favourites list and toggle.
 
 ### menus/
 - `models.py`: `Menu` (owned by a user) and `MenuItem` (drink, cost, price). `margin` and `margin_percent` are computed properties; the menu has an average that ignores unpriced drinks.
@@ -69,12 +69,13 @@ Browser -> Render/gunicorn -> `config/urls.py` picks an app -> the app's `urls.p
 5. Menus: set a cost and price, show margin and average margin.
 6. Favourites page and dashboard cards.
 7. Log in as admin: Admin link, user table, change a role, deactivate a test user.
-8. Mention the tests (about 135), 97% coverage, feature branches and pull requests on GitHub, and the Render deployment.
+8. Mention the tests (about 145), 98% coverage, feature branches and pull requests on GitHub, and the Render deployment.
 
 ## 6. Questions you may be asked
 
 - **Why Django and PostgreSQL?** The course stack. Django gives auth, ORM, forms and admin; PostgreSQL is what Render offers and handles the constraints used here.
 - **How is user data protected?** Hashed passwords, CSRF on every form, login required on private pages, owner-filtered queries, secrets in environment variables, HTTPS redirect when `DEBUG` is off.
 - **What happens if the API is down?** `CocktailAPIError` is caught and a friendly message is shown. Cached results keep working.
+- **Does browsing overload the API?** No. Each letter or category click is one request, cached for a week and shared with the "Can I make it?" catalogue, and nothing is fetched until someone clicks.
 - **What would you add next?** Shopping list from "almost" matches, ingredient aliases (for example "triple sec" and "Cointreau"), recipe notes, and a paid API key for production.
 - **What is not finished or known limits?** The free API key is for development, so a production key is needed for a public release. Ingredient matching is word-based and the bartender is the final judge.

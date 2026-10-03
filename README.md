@@ -16,7 +16,7 @@ The free TheCocktailDB key cannot search by ingredient (it returns a single samp
 
 ## Browse recipes
 
-The Browse page is never empty: it opens on the cocktails starting with A, with an A-Z / 0-9 strip, a category dropdown and the name search. Each choice costs one TheCocktailDB request, cached for a week in the database cache and shared with the "Can I make it?" catalogue, so browsing adds almost no extra API load. If the API is down the page still loads and shows a friendly message.
+The Browse page is public (no account needed) and never empty: it opens on the cocktails starting with A, with an A-Z / 0-9 strip, a category dropdown and the name search. Each choice costs one TheCocktailDB request, cached for a week in the database cache and shared with the "Can I make it?" catalogue, so browsing adds almost no extra API load. If the API is down the page still loads and shows a friendly message.
 
 ## Favourites
 
@@ -34,7 +34,7 @@ Users with the admin role (and superusers) get an Admin link in the navbar leadi
 
 Beyond the required register/login, dashboard and API integration:
 
-- Recipe search by name, with suggested searches
+- Recipe browsing: search by name, A-Z / 0-9 letter strip, category filter, and suggested searches
 - "Can I make it?" matcher: cocktails ready now, or one or two ingredients short
 - Favourites (save and remove recipes, shown on the dashboard)
 - Menu builder with cost, price, margin and average margin
@@ -92,7 +92,7 @@ docs/         WALKTHROUGH.md: tour of the code and demo script
 python manage.py test
 ```
 
-Tests are written with Python's built-in `unittest` framework through Django's `TestCase` classes and test runner (`python manage.py test`), using a temporary database. There are about 135 of them. No test touches the network: calls to TheCocktailDB are replaced with mocks. Covered areas: the API client (parsing, caching, retries, errors), ingredient matching, the catalogue builder, stock, favourites, menus and margin maths, and access control on every private page (anonymous, bartender and admin users). Line coverage measured with `coverage` is about 97%.
+Tests are written with Python's built-in `unittest` framework through Django's `TestCase` classes and test runner (`python manage.py test`), using a temporary database. There are about 145 of them. No test touches the network: calls to TheCocktailDB are replaced with mocks. Covered areas: the API client (parsing, caching, retries, errors), ingredient matching, the catalogue builder, stock, favourites, menus and margin maths, and access control on every private page (anonymous, bartender and admin users). Line coverage measured with `coverage` is about 98%.
 
 ## Deploy to Render
 
