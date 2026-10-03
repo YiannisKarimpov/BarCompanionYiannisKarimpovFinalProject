@@ -6,13 +6,17 @@ cached briefly to stay well inside the API's fair-use limits.
 """
 import hashlib
 import json
+import time
 
 import requests
 from django.conf import settings
 from django.core.cache import cache
 
 REQUEST_TIMEOUT_SECONDS = 8
+MAX_ATTEMPTS = 3  # tries per request when the API says it is busy
+RETRY_STATUSES = {429, 500, 502, 503, 504}
 CACHE_SECONDS = 60 * 60
+CATALOGUE_CACHE_SECONDS = 60 * 60 * 24 * 7  # the full cocktail list barely changes
 MAX_INGREDIENTS = 15  # the API exposes strIngredient1 .. strIngredient15
 
 
@@ -20,7 +24,7 @@ class CocktailAPIError(Exception):
     """Raised when TheCocktailDB cannot be reached or returns unusable data."""
 
 
-def _get(endpoint, params):
+def _get(endpoint, params, cache_seconds=CACHE_SECONDS):
     """Call one API endpoint and return the decoded JSON, using the cache.
 
     Raises CocktailAPIError on any network, HTTP or JSON problem.
@@ -33,14 +37,21 @@ def _get(endpoint, params):
         return cached
 
     url = f"{settings.COCKTAILDB_BASE_URL.rstrip('/')}/{settings.COCKTAILDB_API_KEY}/{endpoint}"
-    try:
-        response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
-        response.raise_for_status()
-        data = response.json()
-    except (requests.RequestException, ValueError) as exc:
-        raise CocktailAPIError("The cocktail service is not responding right now.") from exc
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
+            response.raise_for_status()
+            # The API answers some "nothing found" lookups with an empty body.
+            data = response.json() if response.text.strip() else {}
+            break
+        except (requests.RequestException, ValueError) as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status in RETRY_STATUSES and attempt < MAX_ATTEMPTS:
+                time.sleep(0.5 * attempt)  # busy: wait a little longer each time
+                continue
+            raise CocktailAPIError("The cocktail service is not responding right now.") from exc
 
-    cache.set(cache_key, data, CACHE_SECONDS)
+    cache.set(cache_key, data, cache_seconds)
     return data
 
 
@@ -78,8 +89,43 @@ def search_cocktails(query):
     return [parse_drink(raw) for raw in (data.get("drinks") or [])]
 
 
-def get_cocktail(drink_id):
+def cocktails_starting_with(letter):
+    """Return every cocktail whose name starts with ``letter`` (full recipes).
+
+    The free API key cannot filter by ingredient (it returns one sample drink),
+    but listing by first letter returns complete recipes, so the matcher builds
+    its catalogue from these lists. Cached for a day.
+    """
+    letter = (letter or "").strip()[:1]
+    if not letter:
+        return []
+    data = _get("search.php", {"f": letter}, cache_seconds=CATALOGUE_CACHE_SECONDS)
+    return [parse_drink(raw) for raw in (data.get("drinks") or [])]
+
+
+def list_values(kind):
+    """Return the API's category names (``kind="c"``) or glass names (``"g"``)."""
+    key = {"c": "strCategory", "g": "strGlass"}[kind]
+    data = _get("list.php", {kind: "list"}, cache_seconds=CATALOGUE_CACHE_SECONDS)
+    return [row[key] for row in (data.get("drinks") or []) if row.get(key)]
+
+
+def drink_ids_by(kind, value):
+    """Return the ids of cocktails in one category or served in one glass.
+
+    The free key caps each list at 100 drinks, but different categories and
+    glasses overlap only partly, so together they reach drinks the by-letter
+    lists miss.
+    """
+    data = _get("filter.php", {kind: value.replace(" ", "_")}, cache_seconds=CATALOGUE_CACHE_SECONDS)
+    drinks = data.get("drinks")
+    if not isinstance(drinks, list):  # the API sends the text "None Found" for no match
+        return []
+    return [int(raw["idDrink"]) for raw in drinks]
+
+
+def get_cocktail(drink_id, cache_seconds=CACHE_SECONDS):
     """Return one cocktail by its API id, or None if it does not exist."""
-    data = _get("lookup.php", {"i": drink_id})
+    data = _get("lookup.php", {"i": drink_id}, cache_seconds=cache_seconds)
     drinks = data.get("drinks") or []
     return parse_drink(drinks[0]) if drinks else None
