@@ -17,12 +17,14 @@ class MenuForm(forms.ModelForm):
         self.user = user
 
     def clean_name(self):
+        """Tidy spaces and reject a name this user already has."""
         name = " ".join(self.cleaned_data["name"].split())
         if Menu.objects.filter(user=self.user, name__iexact=name).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("You already have a menu with this name.")
         return name
 
     def save(self, commit=True):
+        """Set the owner from the logged-in user, never from submitted data."""
         self.instance.user = self.user
         return super().save(commit=commit)
 

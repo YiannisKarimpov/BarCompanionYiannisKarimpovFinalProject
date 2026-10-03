@@ -10,9 +10,11 @@ from recipes import matching, services
 
 
 class Command(BaseCommand):
+    """Pre-load the cocktail catalogue into the cache."""
     help = "Fetch every cocktail from TheCocktailDB and cache the catalogue."
 
     def handle(self, *args, **options):
+        """Build the catalogue and report how many cocktails were cached."""
         try:
             drinks, failures = matching.load_catalogue()
         except services.CocktailAPIError as exc:

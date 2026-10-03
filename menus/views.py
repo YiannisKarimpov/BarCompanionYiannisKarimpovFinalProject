@@ -25,33 +25,40 @@ class OwnMenuMixin(LoginRequiredMixin):
     model = Menu
 
     def get_queryset(self):
+        """Return only the logged-in user's menus."""
         return Menu.objects.filter(user=self.request.user)
 
 
 class MenuListView(OwnMenuMixin, ListView):
+    """List the user's menus."""
     template_name = "menus/menu_list.html"
     context_object_name = "menus"
 
 
 class MenuCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    """Create a menu owned by the current user."""
     form_class = MenuForm
     template_name = "menus/menu_form.html"
     success_message = "Menu created. Add drinks from any recipe page."
 
     def get_form_kwargs(self):
+        """Pass the current user to the form."""
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
 
     def get_success_url(self):
+        """Go to the new menu."""
         return reverse("menus:detail", args=[self.object.pk])
 
 
 class MenuDetailView(OwnMenuMixin, DetailView):
+    """Show one menu with margins and the average margin."""
     template_name = "menus/menu_detail.html"
     context_object_name = "menu"
 
     def get_context_data(self, **kwargs):
+        """Add the items, average margin and count of unpriced items."""
         context = super().get_context_data(**kwargs)
         items = list(self.object.items.all())
         context["items"] = items
@@ -61,6 +68,7 @@ class MenuDetailView(OwnMenuMixin, DetailView):
 
 
 class MenuDeleteView(OwnMenuMixin, SuccessMessageMixin, DeleteView):
+    """Confirm and delete a menu with its items."""
     template_name = "menus/menu_confirm_delete.html"
     success_url = reverse_lazy("menus:list")
     success_message = "Menu deleted."
@@ -74,9 +82,11 @@ class ItemUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = "Prices updated."
 
     def get_queryset(self):
+        """Return only items on the user's own menus."""
         return MenuItem.objects.filter(menu__user=self.request.user).select_related("menu")
 
     def get_success_url(self):
+        """Return to the menu the item belongs to."""
         return reverse("menus:detail", args=[self.object.menu_id])
 
 

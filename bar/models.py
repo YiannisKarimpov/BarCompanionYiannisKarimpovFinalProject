@@ -30,6 +30,7 @@ class BarStock(models.Model):
     """The quantity of one ingredient held by one user."""
 
     class Unit(models.TextChoices):
+        """Units a stock quantity can be measured in."""
         BOTTLES = "bottles", "Bottles"
         ML = "ml", "Millilitres"
         UNITS = "units", "Units"

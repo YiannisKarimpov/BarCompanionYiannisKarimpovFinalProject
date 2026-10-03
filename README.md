@@ -2,11 +2,13 @@
 
 A cocktail and bar-management web app for bartenders, built with Django and PostgreSQL as the final project for the UCD Dublin Professional Academy Full Stack Software Development course.
 
-Users can register and log in, then (as features are added week by week) browse cocktail recipes from an external API, track their bar's stock, see which cocktails they can make, save favourites, and build costed menus.
+Users can register and log in, browse cocktail recipes from an external API, track their bar's stock, see which cocktails they can make, save favourites, and build costed menus. Admins get a small management area for users and ingredients.
+
+Live site: https://bar-companion-z2oo.onrender.com (the free Render plan sleeps when idle, so the first load can take a while).
 
 ## Status
 
-Week 2 skeleton, My bar stock management, recipe browsing from TheCocktailDB, the "Can I make it?" matcher, favourites, and the menu builder.
+Feature complete: accounts and roles, My bar stock, recipe browsing, "Can I make it?" matcher, favourites, menu builder and site admin. Remaining work is polish only. See `docs/WALKTHROUGH.md` for a file-by-file tour of the code.
 
 ## How "Can I make it?" works
 
@@ -36,12 +38,13 @@ Users with the admin role (and superusers) get an Admin link in the navbar leadi
 ```
 config/       project settings, root URLs, WSGI
 accounts/     custom User model (email login, role), register/login/logout
-core/         landing page and dashboard
+core/         landing page, dashboard, admin-only /manage/ pages
 bar/          ingredient stock (My bar)
 recipes/      TheCocktailDB client, matcher, favourites
 menus/        menu builder: costs, prices and margins
 templates/    base.html and per-app templates
 static/       site CSS
+docs/         WALKTHROUGH.md: tour of the code and demo script
 ```
 
 ## Run locally
@@ -73,6 +76,8 @@ static/       site CSS
 ```
 python manage.py test
 ```
+
+The suite (about 135 tests) uses Django's `TestCase` with a temporary database. No test touches the network: calls to TheCocktailDB are replaced with mocks. Covered areas: the API client (parsing, caching, retries, errors), ingredient matching, the catalogue builder, stock, favourites, menus and margin maths, and access control on every private page (anonymous, bartender and admin users). Line coverage measured with `coverage` is about 97%.
 
 ## Deploy to Render
 
