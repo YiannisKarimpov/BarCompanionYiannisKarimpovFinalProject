@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Ingredients · Bar Companion{% endblock %}
+{% block content %}
+<p><a href="{% url 'core:manage' %}">&larr; Site admin</a></p>
+<h1 class="h2 mb-3">Ingredients</h1>
+<p class="text-muted-site">Ingredient names are shared by all bars. Names nobody uses (for example after typos) can be deleted.</p>
+{% if ingredients %}
+<div class="table-responsive">
+  <table class="table table-dark align-middle">
+    <thead><tr><th>Name</th><th class="text-end">Bars holding it</th><th></th></tr></thead>
+    <tbody>
+      {% for item in ingredients %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td class="text-end">{{ item.in_bars }}</td>
+        <td class="text-end">
+          {% if not item.in_bars %}
+          <form method="post" action="{% url 'core:manage_ingredient_delete' item.pk %}">{% csrf_token %}<button class="btn btn-outline-danger btn-sm" type="submit">Delete</button></form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}<p class="text-muted-site">No ingredients yet.</p>{% endif %}
+{% endblock %}

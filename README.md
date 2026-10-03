@@ -20,6 +20,10 @@ Logged-in users can press Save on any recipe to add it to their favourites (pres
 
 Bartenders can create named menus (`/menus/`), add any recipe to one with "Add to menu" on the recipe page, then set each drink's cost and selling price. The menu page shows the margin in euros and as a percentage of the price for every drink, plus the menu's average margin (drinks without a price are left out of the average and flagged). A menu item stores the TheCocktailDB drink id with its name and picture, so menu pages need no API calls. Menus are private: every view filters by the logged-in user, so another user's menu returns 404.
 
+## Site admin
+
+Users with the admin role (and superusers) get an Admin link in the navbar leading to `/manage/`: site totals, a user table showing each person's stock, menus and favourites, role changes, and deactivate/reactivate for accounts (a deactivated user cannot log in). Admins cannot change their own role or deactivate themselves, so the site can never be left without an admin. A second page lists the shared ingredient names and deletes unused ones. Anonymous visitors are sent to log in; logged-in bartenders get a 403 page. Django's own `/admin/` stays available for low-level data editing.
+
 ## Tech stack
 
 - Django 5.2 (Python), Django templates, Bootstrap 5
