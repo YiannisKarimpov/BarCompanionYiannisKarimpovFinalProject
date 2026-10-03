@@ -25,6 +25,7 @@ def admin_required(view):
     @wraps(view)
     @login_required
     def wrapper(request, *args, **kwargs):
+        """Check admin access, then call the wrapped view."""
         if not request.user.has_admin_access:
             raise PermissionDenied
         return view(request, *args, **kwargs)

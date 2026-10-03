@@ -19,6 +19,7 @@ class OwnStockMixin(LoginRequiredMixin):
     success_url = reverse_lazy("bar:list")
 
     def get_queryset(self):
+        """Return only the logged-in user's stock lines."""
         return BarStock.objects.filter(user=self.request.user).select_related("ingredient")
 
 
@@ -36,6 +37,7 @@ class StockFormMixin(OwnStockMixin, SuccessMessageMixin):
     template_name = "bar/stock_form.html"
 
     def get_form_kwargs(self):
+        """Pass the current user to the form so it can set the owner."""
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs

@@ -41,6 +41,7 @@ class User(AbstractUser):
     """Application user, identified by a unique email address."""
 
     class Role(models.TextChoices):
+        """The two roles a user can have."""
         BARTENDER = "bartender", "Bartender"
         ADMIN = "admin", "Admin"
 
