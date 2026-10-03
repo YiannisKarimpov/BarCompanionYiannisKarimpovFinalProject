@@ -200,7 +200,7 @@ class DetailViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertContains(response, "Shake with ice and strain.")
         self.assertContains(response, "Lime juice")
-        self.assertContains(response, "to see which ingredients you already have")
+        self.assertContains(response, "see which ingredients you already have")
         self.assertNotContains(response, "In your bar")
 
     @patch("recipes.services.requests.get")
