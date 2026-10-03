@@ -60,3 +60,8 @@ class User(AbstractUser):
     def is_admin_role(self):
         """True when the user has the admin role."""
         return self.role == self.Role.ADMIN
+
+    @property
+    def has_admin_access(self):
+        """True for the admin role and for superusers (who manage the site too)."""
+        return self.is_active and (self.is_admin_role or self.is_superuser)

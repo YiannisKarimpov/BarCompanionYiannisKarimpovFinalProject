@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Admin · Bar Companion{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h2 mb-0">Site admin</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-gold btn-sm" href="{% url 'core:manage_ingredients' %}">Ingredients</a>
+    <a class="btn btn-outline-gold btn-sm" href="{% url 'admin:index' %}">Django admin</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, value in totals.items %}
+  <div class="col-6 col-md"><div class="card site-card text-center"><div class="card-body py-3">
+    <div class="h3 mb-0">{{ value }}</div><div class="small text-muted-site text-capitalize">{{ label }}</div>
+  </div></div></div>
+  {% endfor %}
+</div>
+
+<h2 class="h5">Users</h2>
+<div class="table-responsive">
+  <table class="table table-dark align-middle">
+    <thead><tr><th>Email</th><th>Name</th><th>Role</th><th class="text-end">Stock</th><th class="text-end">Menus</th><th class="text-end">Favourites</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.email }}{% if u == user %} <span class="badge text-bg-secondary">you</span>{% endif %}</td>
+        <td>{{ u.first_name }} {{ u.last_name }}</td>
+        <td>
+          {% if u == user %}{{ u.get_role_display }}{% else %}
+          <form method="post" action="{% url 'core:manage_role' u.pk %}" class="d-flex gap-1">
+            {% csrf_token %}
+            <select name="role" class="form-select form-select-sm" aria-label="Role for {{ u.email }}">
+              {% for value, label in roles %}<option value="{{ value }}"{% if u.role == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+            <button class="btn btn-outline-gold btn-sm" type="submit">Set</button>
+          </form>
+          {% endif %}
+        </td>
+        <td class="text-end">{{ u.stock_total }}</td>
+        <td class="text-end">{{ u.menu_total }}</td>
+        <td class="text-end">{{ u.favourite_total }}</td>
+        <td>{% if u.is_active %}Active{% else %}<span class="text-danger">Deactivated</span>{% endif %}</td>
+        <td class="text-end">
+          {% if u != user %}
+          <form method="post" action="{% url 'core:manage_active' u.pk %}">{% csrf_token %}
+            <button class="btn btn-outline-{% if u.is_active %}danger{% else %}gold{% endif %} btn-sm" type="submit">{% if u.is_active %}Deactivate{% else %}Reactivate{% endif %}</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
