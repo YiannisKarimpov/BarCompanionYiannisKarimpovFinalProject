@@ -8,23 +8,23 @@
   <link href="{% static 'css/site.css' %}" rel="stylesheet">
 </head>
 <body class="d-flex flex-column min-vh-100">
-  <nav class="navbar navbar-expand-md navbar-dark site-nav">
+  <nav class="navbar navbar-expand-xl navbar-dark site-nav">
     <div class="container">
       <a class="navbar-brand" href="{% url 'core:home' %}">Bar Companion</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="nav">
-        <ul class="navbar-nav ms-auto align-items-md-center gap-md-2">
-          <li class="nav-item"><a class="nav-link" href="{% url 'recipes:browse' %}">Recipes</a></li>
+        <ul class="navbar-nav ms-auto align-items-xl-center gap-xl-2">
+          <li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'recipes:browse' %}">Recipes</a></li>
           {% if user.is_authenticated %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'bar:list' %}">My bar</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'recipes:matcher' %}">Can I make it?</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'recipes:favourites' %}">Favourites</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'menus:list' %}">Menus</a></li>
-            {% if user.has_admin_access %}<li class="nav-item"><a class="nav-link" href="{% url 'core:manage' %}">Admin</a></li>{% endif %}
-            <li class="nav-item"><span class="nav-link disabled">{{ user.first_name }}</span></li>
+            <li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'core:dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'bar:list' %}">My bar</a></li>
+            <li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'recipes:matcher' %}">Can I make it?</a></li>
+            <li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'recipes:favourites' %}">Favourites</a></li>
+            <li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'menus:list' %}">Menus</a></li>
+            {% if user.has_admin_access %}<li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'core:manage' %}">Admin</a></li>{% endif %}
+            <li class="nav-item"><span class="nav-link disabled text-nowrap">{{ user.first_name }}</span></li>
             <li class="nav-item">
               <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
                 {% csrf_token %}
@@ -32,7 +32,7 @@
               </form>
             </li>
           {% else %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Log in</a></li>
+            <li class="nav-item"><a class="nav-link text-nowrap" href="{% url 'accounts:login' %}">Log in</a></li>
             <li class="nav-item"><a class="btn btn-gold btn-sm" href="{% url 'accounts:register' %}">Sign up</a></li>
           {% endif %}
         </ul>
