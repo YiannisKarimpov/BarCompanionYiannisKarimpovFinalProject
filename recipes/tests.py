@@ -118,6 +118,44 @@ class ServiceTests(TestCase):
             services.get_cocktail(1)
 
 
+class RetryTests(TestCase):
+    """A busy API (HTTP 429/5xx) is retried a few times before giving up."""
+
+    def setUp(self):
+        cache.clear()
+
+    @staticmethod
+    def busy_response(status):
+        error = requests.HTTPError(str(status))
+        error.response = MagicMock(status_code=status)
+        return fake_response({}, status_error=error)
+
+    @patch("recipes.services.time.sleep")
+    @patch("recipes.services.requests.get")
+    def test_busy_response_is_retried_then_succeeds(self, mock_get, mock_sleep):
+        mock_get.side_effect = [self.busy_response(429), fake_response({"drinks": [MARGARITA]})]
+        self.assertEqual(services.search_cocktails("margarita")[0]["name"], "Margarita")
+        self.assertEqual(mock_get.call_count, 2)
+        mock_sleep.assert_called_once()
+
+    @patch("recipes.services.time.sleep")
+    @patch("recipes.services.requests.get")
+    def test_gives_up_after_the_maximum_attempts(self, mock_get, _mock_sleep):
+        mock_get.side_effect = [self.busy_response(503)] * services.MAX_ATTEMPTS
+        with self.assertRaises(services.CocktailAPIError):
+            services.search_cocktails("margarita")
+        self.assertEqual(mock_get.call_count, services.MAX_ATTEMPTS)
+
+    @patch("recipes.services.time.sleep")
+    @patch("recipes.services.requests.get")
+    def test_client_errors_are_not_retried(self, mock_get, mock_sleep):
+        mock_get.return_value = self.busy_response(404)
+        with self.assertRaises(services.CocktailAPIError):
+            services.search_cocktails("margarita")
+        self.assertEqual(mock_get.call_count, 1)
+        mock_sleep.assert_not_called()
+
+
 class BrowseViewTests(TestCase):
     """The public search page."""
 

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Can I make it? · Bar Companion{% endblock %}
+{% block content %}
+<h1 class="h2 mb-1">Can I make it?</h1>
+<p class="text-muted-site mb-3">Cocktails matched against what is in your bar. Ice and water are assumed to be on hand.</p>
+
+{% if not has_stock %}
+  <div class="card site-card"><div class="card-body">
+    <p class="mb-2">Your bar is empty, so there is nothing to match yet.</p>
+    <a class="btn btn-gold btn-sm" href="{% url 'bar:add' %}">Add your first ingredient</a>
+  </div></div>
+{% else %}
+  <p class="small text-muted-site mb-1">Using {{ stock_names|length }} item{{ stock_names|length|pluralize }} from your bar:</p>
+  <p class="mb-4">
+    {% for name in stock_names %}<span class="badge text-bg-dark border me-1 mb-1">{{ name }}</span>{% endfor %}
+  </p>
+
+  {% if error %}
+    <div class="alert alert-danger" role="alert">{{ error }} Please try again in a moment.</div>
+  {% else %}
+    <p class="small text-muted-site mb-4">Compared with {{ checked }} cocktails.</p>
+    {% if incomplete %}
+      <div class="alert alert-warning" role="alert">The cocktail service was busy, so some recipes could not be loaded and this list may be incomplete. Refresh in a minute to load the rest.</div>
+    {% endif %}
+
+    <h2 class="h4 mb-3">You can make these now <span class="badge text-bg-success align-middle">{{ ready|length }}</span></h2>
+    {% if ready %}
+      <div class="row g-3 mb-5">
+        {% for drink in ready %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <a class="text-decoration-none" href="{% url 'recipes:detail' drink.id %}">
+            <div class="card h-100 site-card">
+              {% if drink.thumb %}<img src="{{ drink.thumb }}" class="card-img-top recipe-thumb" alt="{{ drink.name }}" loading="lazy">{% endif %}
+              <div class="card-body"><h3 class="h6 mb-0">{{ drink.name }}</h3></div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted-site mb-5">Nothing is fully makeable yet. Recipes often include garnishes or extras, so check what is missing below.</p>
+    {% endif %}
+
+    <h2 class="h4 mb-3">One ingredient away <span class="badge text-bg-secondary align-middle">{{ almost|length }}</span></h2>
+    {% if almost %}
+      <div class="row g-3 mb-5">
+        {% for drink in almost %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <a class="text-decoration-none" href="{% url 'recipes:detail' drink.id %}">
+            <div class="card h-100 site-card">
+              {% if drink.thumb %}<img src="{{ drink.thumb }}" class="card-img-top recipe-thumb" alt="{{ drink.name }}" loading="lazy">{% endif %}
+              <div class="card-body">
+                <h3 class="h6 mb-1">{{ drink.name }}</h3>
+                <p class="small mb-0 text-muted-site">Missing: {{ drink.missing|join:", " }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted-site mb-5">No cocktails are exactly one ingredient short.</p>
+    {% endif %}
+
+    <h2 class="h4 mb-3">Two ingredients away <span class="badge text-bg-secondary align-middle">{{ close|length }}</span></h2>
+    {% if close %}
+      <div class="row g-3">
+        {% for drink in close %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <a class="text-decoration-none" href="{% url 'recipes:detail' drink.id %}">
+            <div class="card h-100 site-card">
+              {% if drink.thumb %}<img src="{{ drink.thumb }}" class="card-img-top recipe-thumb" alt="{{ drink.name }}" loading="lazy">{% endif %}
+              <div class="card-body">
+                <h3 class="h6 mb-1">{{ drink.name }}</h3>
+                <p class="small mb-0 text-muted-site">Missing: {{ drink.missing|join:", " }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted-site">No cocktails are two ingredients short either. Adding a few more bottles will unlock more.</p>
+    {% endif %}
+  {% endif %}
+{% endif %}
+{% endblock %}
