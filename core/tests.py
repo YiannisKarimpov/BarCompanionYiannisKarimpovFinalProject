@@ -16,6 +16,17 @@ class HomeViewTests(TestCase):
     def test_home_shows_signup_to_guests(self):
         self.assertContains(self.client.get(reverse("core:home")), "Create a free account")
 
+    def test_guest_sees_browse_without_account_link(self):
+        self.assertContains(self.client.get(reverse("core:home")), "without an account")
+
+    def test_logged_in_user_does_not_see_without_account_link(self):
+        user = User.objects.create_user(email="h@example.com", password="a-Strong-pass-2026")
+        self.client.force_login(user)
+        response = self.client.get(reverse("core:home"))
+        self.assertNotContains(response, "without an account")
+        self.assertContains(response, "Browse cocktail recipes")
+        self.assertContains(response, "Go to your dashboard")
+
 
 class DashboardViewTests(TestCase):
     """The dashboard requires a logged-in user."""
