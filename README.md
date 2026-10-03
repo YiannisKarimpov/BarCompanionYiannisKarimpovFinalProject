@@ -6,7 +6,11 @@ Users can register and log in, then (as features are added week by week) browse 
 
 ## Status
 
-Week 2 skeleton plus My bar stock management and recipe browsing from TheCocktailDB.
+Week 2 skeleton, My bar stock management, recipe browsing from TheCocktailDB, and the "Can I make it?" matcher.
+
+## How "Can I make it?" works
+
+The free TheCocktailDB key cannot search by ingredient (it returns a single sample drink), so `recipes/matching.py` builds its own catalogue and compares each recipe with your bar locally. The catalogue combines the by-letter lists (complete recipes, but each list is capped) with the drinks found by listing every category and glass, looking up any recipe not yet known. Ingredient names are matched by whole words ("rum" matches "Light rum", "gin" does not match "Ginger ale"). Cocktails with nothing missing are listed as makeable now, then those one and two ingredients short with what is missing. Ice and water are assumed to be on hand. Building the catalogue takes about a minute, so it is cached in the database for a week and pre-loaded by `python manage.py warm_catalogue` (run automatically by `build.sh` on deploy). If requests fail while it loads, the page warns that the list may be incomplete and a refresh fills the gaps.
 
 ## Tech stack
 
@@ -37,10 +41,12 @@ static/       site CSS
 
 2. Copy `.env.example` to `.env` and edit it. To use PostgreSQL, create a database called `barcompanion` and set `DATABASE_URL`. If `DATABASE_URL` is removed, the app uses SQLite.
 
-3. Apply migrations, create an admin user, and start the server:
+3. Create the cache table, apply migrations, pre-load the cocktail catalogue (about a minute, once a week), create an admin user, and start the server:
 
    ```
+   python manage.py createcachetable
    python manage.py migrate
+   python manage.py warm_catalogue
    python manage.py createsuperuser
    python manage.py runserver
    ```
@@ -57,13 +63,13 @@ python manage.py test
 
 1. Push the repository to GitHub.
 2. In Render, create a PostgreSQL database, then a new Web Service from the repository.
-3. Build command: `bash build.sh`   Start command: `gunicorn config.wsgi`
+3. Build command: `bash build.sh` (installs, collects static files, creates the cache table, migrates and pre-loads the cocktail catalogue)   Start command: `gunicorn config.wsgi` (`gunicorn.conf.py` sets a 120 second timeout)
 4. Environment variables on the web service:
    - `SECRET_KEY`: a long random string
    - `DEBUG`: `False`
    - `DATABASE_URL`: the Internal Database URL from the Render PostgreSQL instance
    - `ALLOWED_HOSTS`: your Render hostname (Render's `RENDER_EXTERNAL_HOSTNAME` is also added automatically)
-5. After the first deploy, open the Render shell and run `python manage.py createsuperuser`.
+5. After the first deploy, create an admin user. The free plan has no Render shell, so run `python manage.py createsuperuser` on your own machine with `DATABASE_URL` temporarily set to the database's External Database URL.
 
 ## Security notes
 
