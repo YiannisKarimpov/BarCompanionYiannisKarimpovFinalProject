@@ -110,18 +110,35 @@ def list_values(kind):
     return [row[key] for row in (data.get("drinks") or []) if row.get(key)]
 
 
-def drink_ids_by(kind, value):
-    """Return the ids of cocktails in one category or served in one glass.
+def _filter_list(kind, value):
+    """Return the raw drinks of one category (``kind="c"``) or glass (``"g"``).
 
-    The free key caps each list at 100 drinks, but different categories and
-    glasses overlap only partly, so together they reach drinks the by-letter
-    lists miss.
+    The free key caps each list at 100 drinks, each with only an id, name and
+    picture. The API sends the text "None Found" for no match, which becomes [].
     """
     data = _get("filter.php", {kind: value.replace(" ", "_")}, cache_seconds=CATALOGUE_CACHE_SECONDS)
     drinks = data.get("drinks")
-    if not isinstance(drinks, list):  # the API sends the text "None Found" for no match
-        return []
-    return [int(raw["idDrink"]) for raw in drinks]
+    return drinks if isinstance(drinks, list) else []
+
+
+def drink_ids_by(kind, value):
+    """Return the ids of cocktails in one category or served in one glass.
+
+    Different categories and glasses overlap only partly, so together they
+    reach drinks the by-letter lists miss.
+    """
+    return [int(raw["idDrink"]) for raw in _filter_list(kind, value)]
+
+
+def drinks_by_category(category):
+    """Return the cocktails in one category as small cards (id, name, picture).
+
+    Shares its cached API response with the matcher's catalogue builder.
+    """
+    return [
+        {"id": int(raw["idDrink"]), "name": raw.get("strDrink") or "Unnamed cocktail", "thumb": raw.get("strDrinkThumb") or "", "category": category}
+        for raw in _filter_list("c", category)
+    ]
 
 
 def get_cocktail(drink_id, cache_seconds=CACHE_SECONDS):

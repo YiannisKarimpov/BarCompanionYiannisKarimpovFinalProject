@@ -14,6 +14,10 @@ Feature complete: accounts and roles, My bar stock, recipe browsing, "Can I make
 
 The free TheCocktailDB key cannot search by ingredient (it returns a single sample drink), so `recipes/matching.py` builds its own catalogue and compares each recipe with your bar locally. The catalogue combines the by-letter lists (complete recipes, but each list is capped) with the drinks found by listing every category and glass, looking up any recipe not yet known. Ingredient names are matched by whole words ("rum" matches "Light rum", "gin" does not match "Ginger ale"). Cocktails with nothing missing are listed as makeable now, then those one and two ingredients short with what is missing. Ice and water are assumed to be on hand. Building the catalogue takes about a minute, so it is cached in the database for a week and pre-loaded by `python manage.py warm_catalogue` (run automatically by `build.sh` on deploy). If requests fail while it loads, the page warns that the list may be incomplete and a refresh fills the gaps.
 
+## Browse recipes
+
+The Browse page is never empty: it opens on the cocktails starting with A, with an A-Z / 0-9 strip, a category dropdown and the name search. Each choice costs one TheCocktailDB request, cached for a week in the database cache and shared with the "Can I make it?" catalogue, so browsing adds almost no extra API load. If the API is down the page still loads and shows a friendly message.
+
 ## Favourites
 
 Logged-in users can press Save on any recipe to add it to their favourites (press again to remove it). A favourite stores only the TheCocktailDB drink id, name and picture (`recipes.models.Favourite`, unique per user and drink), so the Favourites page and the dashboard card load without calling the API. Saving is a POST request protected by CSRF and requires login.

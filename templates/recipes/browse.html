@@ -3,7 +3,7 @@
 {% block content %}
 <h1 class="h2 mb-3">Browse recipes</h1>
 
-<form method="get" class="row g-2 mb-4" role="search">
+<form method="get" class="row g-2 mb-3" role="search">
   <div class="col-sm-9 col-md-10">
     <label class="visually-hidden" for="q">Cocktail name</label>
     <input type="search" id="q" name="q" value="{{ query }}" class="form-control" placeholder="Search by cocktail name, e.g. Negroni">
@@ -13,21 +13,44 @@
   </div>
 </form>
 
+{% if categories %}
+<form method="get" class="row g-2 mb-3">
+  <div class="col-sm-9 col-md-10">
+    <label class="visually-hidden" for="category">Category</label>
+    <select id="category" name="category" class="form-select">
+      <option value="">Filter by category...</option>
+      {% for name in categories %}<option value="{{ name }}"{% if name == active_category %} selected{% endif %}>{{ name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-3 col-md-2 d-grid">
+    <button type="submit" class="btn btn-outline-gold">Show</button>
+  </div>
+</form>
+{% endif %}
+
+<nav class="d-flex flex-wrap gap-1 mb-3" aria-label="Browse by first letter">
+  {% for char in letters %}
+    <a class="btn btn-sm {% if char == active_letter %}btn-gold{% else %}btn-outline-gold{% endif %}" href="{% url 'recipes:browse' %}?letter={{ char }}"{% if char == active_letter %} aria-current="true"{% endif %}>{{ char|upper }}</a>
+  {% endfor %}
+</nav>
+
+<div class="d-flex flex-wrap gap-2 align-items-center mb-4">
+  <span class="text-muted-site small">Popular:</span>
+  {% for name in suggestions %}
+    <a class="btn btn-outline-gold btn-sm" href="{% url 'recipes:browse' %}?q={{ name|urlencode }}">{{ name }}</a>
+  {% endfor %}
+</div>
+
 {% if error %}
   <div class="alert alert-danger" role="alert">{{ error }} Please try again in a moment.</div>
 {% elif query and not results %}
   <p class="text-muted-site">No cocktails found for "{{ query }}". Try a different name.</p>
-{% elif not query %}
-  <p class="text-muted-site mb-2">Search for a cocktail by name, or try one of these:</p>
-  <div class="d-flex flex-wrap gap-2">
-    {% for name in suggestions %}
-      <a class="btn btn-outline-gold btn-sm" href="{% url 'recipes:browse' %}?q={{ name|urlencode }}">{{ name }}</a>
-    {% endfor %}
-  </div>
+{% elif not results %}
+  <p class="text-muted-site">No cocktails to show here. Try another letter or category.</p>
 {% endif %}
 
 {% if results %}
-  <p class="text-muted-site">{{ results|length }} result{{ results|length|pluralize }} for "{{ query }}"</p>
+  <p class="text-muted-site">{% if query %}{{ results|length }} result{{ results|length|pluralize }} for "{{ query }}"{% else %}{{ heading }}{% if not active_category %} ({{ results|length }}){% endif %}{% endif %}</p>
   <div class="row g-3">
     {% for drink in results %}
     <div class="col-6 col-md-4 col-lg-3">
@@ -36,7 +59,7 @@
           {% if drink.thumb %}<img src="{{ drink.thumb }}" class="card-img-top recipe-thumb" alt="{{ drink.name }}" loading="lazy">{% endif %}
           <div class="card-body">
             <h2 class="h6 mb-1">{{ drink.name }}</h2>
-            <p class="small text-muted-site mb-0">{{ drink.category }}</p>
+            {% if drink.category %}<p class="small text-muted-site mb-0">{{ drink.category }}</p>{% endif %}
           </div>
         </div>
       </a>

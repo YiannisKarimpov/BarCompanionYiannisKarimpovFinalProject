@@ -162,9 +162,81 @@ class BrowseViewTests(TestCase):
     def setUp(self):
         cache.clear()
 
-    def test_page_is_public_and_shows_suggestions_without_query(self):
+    def api(self, mock_get, letter_drinks=None, category_drinks=None, categories=("Cocktail", "Shot")):
+        """Make the fake API answer by endpoint, like the real one."""
+        def respond(url, params=None, **kwargs):
+            params = params or {}
+            if url.endswith("list.php"):
+                return fake_response({"drinks": [{"strCategory": name} for name in categories]})
+            if url.endswith("filter.php"):
+                return fake_response({"drinks": category_drinks})
+            if url.endswith("search.php") and "f" in params:
+                return fake_response({"drinks": letter_drinks})
+            return fake_response({"drinks": [MARGARITA]})
+        mock_get.side_effect = respond
+
+    @patch("recipes.services.requests.get")
+    def test_default_page_lists_cocktails_starting_with_a(self, mock_get):
+        self.api(mock_get, letter_drinks=[MARGARITA])
         response = self.client.get(reverse("recipes:browse"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Cocktails starting with A")
+        self.assertContains(response, "Margarita")
+        self.assertContains(response, "Negroni")  # suggestions stay
+
+    @patch("recipes.services.requests.get")
+    def test_letter_strip_selects_a_letter(self, mock_get):
+        self.api(mock_get, letter_drinks=[MARGARITA])
+        response = self.client.get(reverse("recipes:browse"), {"letter": "m"})
+        self.assertContains(response, "Cocktails starting with M")
+        self.assertContains(response, "?letter=z")
+
+    @patch("recipes.services.requests.get")
+    def test_invalid_letter_falls_back_to_default(self, mock_get):
+        self.api(mock_get, letter_drinks=[MARGARITA])
+        response = self.client.get(reverse("recipes:browse"), {"letter": "!"})
+        self.assertContains(response, "Cocktails starting with A")
+
+    @patch("recipes.services.requests.get")
+    def test_category_filter_lists_that_category(self, mock_get):
+        self.api(mock_get, category_drinks=[{"idDrink": "11007", "strDrink": "Margarita", "strDrinkThumb": "http://x/y.jpg"}])
+        response = self.client.get(reverse("recipes:browse"), {"category": "Cocktail"})
+        self.assertContains(response, "Cocktail: 1 cocktail")
+        self.assertContains(response, reverse("recipes:detail", args=[11007]))
+
+    @patch("recipes.services.requests.get")
+    def test_unknown_category_shows_nothing_to_show(self, mock_get):
+        self.api(mock_get, category_drinks=None)
+        response = self.client.get(reverse("recipes:browse"), {"category": "Nonsense"})
+        self.assertContains(response, "No cocktails to show")
+
+    @patch("recipes.services.requests.get")
+    def test_category_still_works_when_category_list_fails(self, mock_get):
+        def respond(url, params=None, **kwargs):
+            if url.endswith("list.php"):
+                raise requests.ConnectionError("down")
+            return fake_response({"drinks": [{"idDrink": "11007", "strDrink": "Margarita", "strDrinkThumb": ""}]})
+        mock_get.side_effect = respond
+        response = self.client.get(reverse("recipes:browse"), {"category": "Cocktail"})
+        self.assertContains(response, "Cocktail: 1 cocktail")
+
+    @patch("recipes.services.requests.get")
+    def test_empty_category_says_nothing_to_show(self, mock_get):
+        self.api(mock_get, category_drinks=None)
+        response = self.client.get(reverse("recipes:browse"), {"category": "Shot"})
+        self.assertContains(response, "No cocktails to show")
+
+    @patch("recipes.services.requests.get")
+    def test_search_takes_priority_over_category_and_letter(self, mock_get):
+        self.api(mock_get)
+        response = self.client.get(reverse("recipes:browse"), {"q": "margarita", "category": "Cocktail", "letter": "b"})
+        self.assertContains(response, 'for "margarita"')
+
+    @patch("recipes.services.requests.get", side_effect=requests.ConnectionError("down"))
+    def test_default_page_survives_api_failure(self, _mock_get):
+        response = self.client.get(reverse("recipes:browse"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "not responding")
         self.assertContains(response, "Negroni")
 
     @patch("recipes.services.requests.get")

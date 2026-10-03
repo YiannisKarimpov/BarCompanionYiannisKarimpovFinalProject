@@ -10,19 +10,53 @@ from bar.models import BarStock
 from . import matching, services
 from .models import Favourite
 
+DEFAULT_LETTER = "a"
 SUGGESTED_SEARCHES = ["Margarita", "Mojito", "Negroni", "Old Fashioned", "Daiquiri", "Martini"]
 
 
 def browse(request):
-    """Search recipes by name. With no search term, show suggestions instead."""
+    """Browse recipes: search by name, filter by category, or page through A-Z.
+
+    With nothing chosen, the page lists the cocktails starting with "a" so it is
+    never empty. Each choice costs one API request, cached for a week and shared
+    with the "Can I make it?" catalogue.
+    """
     query = request.GET.get("q", "").strip()
-    results, error = [], None
-    if query:
-        try:
+    category = request.GET.get("category", "").strip()
+    letter = request.GET.get("letter", "").strip().lower()[:1]
+    if not letter or letter not in matching.CATALOGUE_LETTERS:
+        letter = DEFAULT_LETTER
+
+    results, error, heading = [], None, ""
+    try:
+        categories = services.list_values("c")
+    except services.CocktailAPIError:
+        categories = []  # the filter just disappears; the rest of the page still works
+    category = category[:40]  # any name is safe: the API just answers "none" for unknown ones
+
+    try:
+        if query:
             results = services.search_cocktails(query)
-        except services.CocktailAPIError as exc:
-            error = str(exc)
-    context = {"query": query, "results": results, "error": error, "suggestions": SUGGESTED_SEARCHES}
+        elif category:
+            results = sorted(services.drinks_by_category(category), key=lambda drink: drink["name"].lower())
+            heading = f"{category}: {len(results)} cocktail{'s' if len(results) != 1 else ''}"
+        else:
+            results = sorted(services.cocktails_starting_with(letter), key=lambda drink: drink["name"].lower())
+            heading = f"Cocktails starting with {letter.upper()}"
+    except services.CocktailAPIError as exc:
+        error = str(exc)
+
+    context = {
+        "query": query,
+        "results": results,
+        "error": error,
+        "heading": heading,
+        "suggestions": SUGGESTED_SEARCHES,
+        "categories": categories,
+        "active_category": category,
+        "active_letter": "" if (query or category) else letter,
+        "letters": list(matching.CATALOGUE_LETTERS),
+    }
     return render(request, "recipes/browse.html", context)
 
 
