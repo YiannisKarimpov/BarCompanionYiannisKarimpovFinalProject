@@ -92,19 +92,52 @@ Tests are written with Python's built-in `unittest` framework through Django's `
 
 ## Deploy to Render
 
-1. Push the repository to GitHub.
-2. In Render, create a PostgreSQL database, then a new Web Service from the repository.
-3. Build command: `bash build.sh` (installs, collects static files, creates the cache table, migrates and pre-loads the cocktail catalogue)   Start command: `gunicorn config.wsgi` (`gunicorn.conf.py` sets a 120 second timeout)
-4. Environment variables on the web service:
-   - `SECRET_KEY`: a long random string
-   - `DEBUG`: `False`
-   - `DATABASE_URL`: the Internal Database URL from the Render PostgreSQL instance
-   - `ALLOWED_HOSTS`: your Render hostname (Render's `RENDER_EXTERNAL_HOSTNAME` is also added automatically)
-5. After the first deploy, create an admin user. The free plan has no Render shell, so run `python manage.py createsuperuser` on your own machine with `DATABASE_URL` temporarily set to the database's External Database URL.
+These steps deploy the app from scratch on Render's free plan. The project was developed and tested with Python 3.13; set a `PYTHON_VERSION` environment variable on the web service if you need to pin the version.
 
-## Security notes
+1. Push the repository to GitHub (or unzip the submitted project and push it to your own repository).
+2. In Render, create a **PostgreSQL** database (Dashboard, New, PostgreSQL). Copy its **Internal Database URL** once it is available.
+3. Create a **Web Service** from the repository with these settings:
+   - Build command: `bash build.sh`
+   - Start command: `gunicorn config.wsgi` (`gunicorn.conf.py` sets a 120 second timeout)
+4. Add these environment variables to the web service:
 
-- Passwords are hashed with Django's default PBKDF2 hasher.
-- Secrets and database credentials come from environment variables, never from git.
-- CSRF protection is on for every form; the dashboard requires login.
-- With `DEBUG=False`, HTTPS redirect and secure cookies are enabled.
+   | Variable | Value |
+   | --- | --- |
+   | `SECRET_KEY` | a long random string (for example from `python -c "import secrets; print(secrets.token_urlsafe(50))"`) |
+   | `DEBUG` | `False` |
+   | `DATABASE_URL` | the Internal Database URL from step 2 |
+   | `ALLOWED_HOSTS` | your Render hostname, such as `your-app.onrender.com` (Render's `RENDER_EXTERNAL_HOSTNAME` is also added automatically) |
+   | `COCKTAILDB_API_KEY` | optional; defaults to the free test key `1` |
+
+5. Deploy. `build.sh` installs the requirements, collects static files, creates the cache table, runs migrations and pre-loads the cocktail catalogue (best effort: if the API is busy the site still deploys and the catalogue loads on first use).
+6. Create the first admin account. The free plan has no Render shell, so run `python manage.py createsuperuser` on your own machine with `DATABASE_URL` temporarily set to the database's **External Database URL**. Alternatively, register a normal account on the site and ask an existing admin to promote it at `/manage/`.
+
+### After deploying, check
+
+- The home page loads over HTTPS and the Sign up and Log in pages work.
+- A new account can add stock in My bar and see results on Can I make it?.
+- A recipe can be saved to favourites and added to a menu.
+- An admin account sees the Admin link; a bartender account does not and gets a 403 page on `/manage/`.
+
+### Deployment notes
+
+- The free web service sleeps when idle, so the first request after a quiet period can take up to a minute.
+- Render's free PostgreSQL database expires after 30 days; recreate it or upgrade it for a longer-lived site, then redeploy so migrations run on the new database.
+- TheCocktailDB's key `1` is a free development key; check the provider's terms and use a production key for a public release.
+
+## Security
+
+- **Authentication:** Django's built-in user system with a custom email-based user model. Passwords are hashed (PBKDF2) and checked by Django's password validators.
+- **Authorization:** every private page requires login. Roles (bartender, admin) are enforced on the server: `/manage/` returns 403 to non-admins and redirects anonymous visitors to log in.
+- **Data isolation:** each query for stock, favourites and menus is filtered by the logged-in user, so guessing another user's URL returns 404.
+- **CSRF:** enabled for all forms; everything that changes data uses POST (`require_POST`), so links cannot trigger changes.
+- **Injection and XSS:** all database access goes through the Django ORM (parameterised queries) and templates auto-escape output.
+- **Redirects:** the `next` parameter on favourites is checked with Django's `url_has_allowed_host_and_scheme`.
+- **Safeguards:** admins cannot demote or deactivate themselves; deactivated users cannot log in.
+- **Secrets:** the secret key and database credentials come from environment variables. `.env` is git-ignored and only `.env.example` is committed.
+- **HTTPS:** with `DEBUG=False` the app redirects to HTTPS, uses secure session and CSRF cookies and sends an HSTS header.
+- **Tested:** access control, ownership and self-protection rules each have automated tests.
+
+## Front end
+
+Templates extend one `base.html` (Bootstrap 5 layout, navbar that collapses on tablets and phones, flash messages). Pages use Bootstrap's responsive grid and tables scroll horizontally on small screens. Every form field has a label, recipe images have alt text, and the colour scheme keeps text readable on the dark background.
